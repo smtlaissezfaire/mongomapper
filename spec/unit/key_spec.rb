@@ -108,71 +108,118 @@ describe "Key" do
   end
 
   context "for an array with :typecast option" do
-    before  { @key = Key.new(:user_ids, Array, :typecast => 'ObjectId') }
-    subject { @key }
+    before  do
+      @key = Key.new(:user_ids, Array, :typecast => 'ObjectId')
+    end
 
     it "should cast each element correctly" do
       ids = [BSON::ObjectId.new, BSON::ObjectId.new, BSON::ObjectId.new.to_s, BSON::ObjectId.new.to_s]
-      subject.set(ids).should == ids.map { |id| ObjectId.to_mongo(id) }
+      @key.set(ids).should == ids.map { |id| ObjectId.to_mongo(id) }
     end
   end
 
   context "for an array with :typecast option of Date" do
-    before  { @key = Key.new(:dates, Array, :typecast => 'Date') }
-    subject { @key }
+    before  do
+      @key = Key.new(:dates, Array, :typecast => 'Date')
+    end
 
     it "should cast each element correctly when get" do
       dates = [Date.yesterday, Date.today, Date.tomorrow.to_s]
-      subject.get(dates).should == dates.map { |date| Date.from_mongo(date) }
+      @key.get(dates).should == dates.map { |date| Date.from_mongo(date) }
     end
 
     it "should cast each element correctly when set" do
       dates = [Date.yesterday, Date.today, Date.tomorrow.to_s]
-      subject.set(dates).should == dates.map { |date| Date.to_mongo(date) }
+      @key.set(dates).should == dates.map { |date| Date.to_mongo(date) }
     end
   end
 
   context "for a set with :typecast option" do
-    before  { @key = Key.new(:user_ids, Set, :typecast => 'ObjectId') }
-    subject { @key }
+    before  do
+      @key = Key.new(:user_ids, Set, :typecast => 'ObjectId')
+    end
 
     it "should cast each element correctly" do
       ids = [BSON::ObjectId.new, BSON::ObjectId.new, BSON::ObjectId.new.to_s, BSON::ObjectId.new.to_s]
-      subject.set(ids).should == ids.map { |id| ObjectId.to_mongo(id) }
+      @key.set(ids).should == ids.map { |id| ObjectId.to_mongo(id) }
     end
   end
 
   context "with the :attributes option" do
-    subject { @key }
-    before { @key = Key.new(:test, String, :accessors => accessor) }
+    def build_key(accessor)
+      Key.new(:test, String, :accessors => accessor)
+    end
 
     context "with :read" do
-      let(:accessor) { :read }
-      its(:read_accessor?) { should be_truthy }
-      its(:write_accessor?) { should be_falsey }
-      its(:predicate_accessor?) { should be_falsey }
+      before do
+        @key = build_key :read
+      end
+
+      it 'should have read_accessor? as true' do
+        @key.read_accessor?.should be_truthy
+      end
+
+      it 'should have write_accessor? as false' do
+        @key.write_accessor?.should be_falsey
+      end
+
+      it 'should have predicate_accessor? as false' do
+        @key.predicate_accessor?.should be_falsey
+      end
     end
 
     context "with :write" do
-      let(:accessor) { :write }
-      its(:read_accessor?) { should be_falsey }
-      its(:write_accessor?) { should be_truthy }
-      its(:predicate_accessor?) { should be_falsey }
+      before do
+        @key = build_key :write
+      end
+
+      it 'should have read_accessor? as false' do
+        @key.read_accessor?.should be_falsey
+      end
+
+      it 'should have write_accessor? as true' do
+        @key.write_accessor?.should be_truthy
+      end
+
+      it 'should have predicate_accessor? as false' do
+        @key.predicate_accessor?.should be_falsey
+      end
     end
 
     context "with :predicate" do
-      let(:accessor) { :predicate }
-      its(:read_accessor?) { should be_falsey }
-      its(:write_accessor?) { should be_falsey }
-      its(:predicate_accessor?) { should be_truthy }
+      before do
+        @key = build_key :predicate
+      end
+
+      it 'should have read_accessor? as false' do
+        @key.read_accessor?.should be_falsey
+      end
+
+      it 'should have write_accessor? as false' do
+        @key.write_accessor?.should be_falsey
+      end
+
+      it 'should have predicate_accessor? as true' do
+        @key.predicate_accessor?.should be_truthy
+      end
     end
 
     context "with an array of options" do
-      let(:accessor) { [:read, :write] }
+      before do
+        @key = build_key [:read, :write]
+      end
 
-      its(:read_accessor?) { should be_truthy }
-      its(:write_accessor?) { should be_truthy }
-      its(:predicate_accessor?) { should be_falsey }
+      it 'should have read_accessor? as true' do
+        @key.read_accessor?.should be_truthy
+      end
+
+      it 'should have write_accessor? as true' do
+        @key.write_accessor?.should be_truthy
+      end
+
+      it 'should have predicate_accessor? as false' do
+        @key.predicate_accessor?.should be_falsey
+      end
     end
   end
 
