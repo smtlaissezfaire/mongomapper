@@ -27,10 +27,11 @@ describe "Validations" do
           doc = @document.new
           doc.password = 'foobar'
           doc.password_confirmation = 'foobar1'
-          doc.should have_error_on(:password).or(:password_confirmation)
+          expect(doc).to have_error_on(:password).or have_error_on(:password_confirmation)
 
           doc.password_confirmation = 'foobar'
           doc.should_not have_error_on(:password)
+          doc.should_not have_error_on(:password_confirmation)
         end
       end
 
@@ -320,9 +321,10 @@ describe "Validations" do
           doc = @embedded_doc.new
           doc.password = 'foobar'
           doc.password_confirmation = 'foobar1'
-          doc.should have_error_on(:password).or(:password_confirmation)
+          expect(doc).to have_error_on(:password).or have_error_on(:password_confirmation)
           doc.password_confirmation = 'foobar'
           doc.should_not have_error_on(:password)
+          doc.should_not have_error_on(:password_confirmation)
         end
       end
 
